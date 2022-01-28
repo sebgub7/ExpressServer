@@ -1,36 +1,50 @@
 const express = require('express');
 const path = require('path');
 const hbs = require('express-handlebars');
-
 const app = express();
+const multer = require('multer');
+const upload = multer({ dest: 'uploads/' });
+
 app.engine('.hbs', hbs());
 app.set('view engine', '.hbs');
-
-
 app.use(express.static(path.join(__dirname, '/public')));
+app.use(express.urlencoded({ extended: false }));
+
+
+app.post('/contact/send-message', upload.single('projectFile'), (req, res) => {
+
+  const {author, sender, title, message} = req.body;
+
+  if(author && sender && title && message && req.file) {
+    res.render('contact', { projectFileName: req.file.originalname, isSent: true });
+  }
+  else {
+    res.render('contact', { isError: true });
+  }
+});
 
 app.get('/', (req, res) => {
-  res.render('index', { layout: 'dark' });
+  res.render('index');
 });
 
 app.get('/hello/:name', (req, res) => {
-  res.render('hello', { layout: 'dark', name: req.params.name });
+  res.render('hello', {name: req.params.name });
 });
 
 app.get('/about', (req, res) => {
-  res.render('about', { layout: 'dark' });
+  res.render('about');
 });
 
 app.get('/contact', (req, res) => {
-  res.render('contact', { layout: 'dark' });
+  res.render('contact');
 });
 
 app.get('/info', (req, res) => {
-  res.render('info', {layout: 'dark'});
+  res.render('info');
 });
 
 app.get('/history', (req, res) => {
-  res.render('history', { layout: 'dark' });
+  res.render('history');
 });
 
 app.use((req, res) => {
